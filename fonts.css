@@ -1,0 +1,40 @@
+html , body {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    width: 100%;
+}
+
+header{
+    background-color: #dfb76e9d;
+    padding: 20px;
+    text-align: center;
+}
+.main{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+}
+.drawboard{
+    border: 10px solid #493a0788;
+    display: flex;
+    gap: .5rem;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    height: 100%;
+}
+#canvas{
+    border: 1px solid #493a07;
+    background-color: #e2e1df9d;
+    height: 45vh;
+    width: 45vh;
+}
+.buttons{
+    display: flex;
+    gap: 3rem;
+    margin-top: 1rem;
+}
