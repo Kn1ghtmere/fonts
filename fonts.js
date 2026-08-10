@@ -17,7 +17,7 @@ function setupCanvasSize(){
 function drawGuide(){
     ctx.clearRect(0,0,canvas.width,canvas.height);
     ctx.fillStyle = "#bbb";
-    ctx.font = `${canvas.height*0.8}px serif`;
+    ctx.font = `${canvas.height*0.65}px serif`;
     ctx.textBaseline = "alphabetic";
     const ch = LETTERS[idx];
     const metrics = ctx.measureText(ch);
@@ -41,6 +41,7 @@ function pos(e) {
 }
 
 canvas.addEventListener('pointerdown', e=>{
+    e.preventDefault();
     drawing = true;
     currentStrokes.push([pos(e)]);
     canvas.setPointerCapture(e.pointerId);
@@ -49,6 +50,7 @@ canvas.addEventListener('pointerdown', e=>{
 
 canvas.addEventListener('pointermove', e=> {
     if(!drawing) return;
+    e.preventDefault();
     currentStrokes[currentStrokes.length-1].push(pos(e));
     drawGuide();
 });
@@ -160,8 +162,12 @@ function finishFont(){
             path.close();
         });
     });
+    const bbox = path.getBoundingBox();
+    const sideBearing = unitsPerEm * 0.06;
+    const advanceWidth = (bbox.x2 - bbox.x1) + sideBearing * 2;
+
     glyphs.push(new opentype.Glyph({
-        name: ch, unicode: ch.charCodeAt(0), advanceWidth: 620, path
+        name: ch, unicode: ch.charCodeAt(0), advanceWidth, path
     }));
 });
 
@@ -189,3 +195,19 @@ function finishFont(){
         a.click();
     };
 }
+
+
+document.getElementById('frontUpload').addEventListener('change', async (e)=>{
+    const file = e.target.files[0];
+    if(!file) return;
+
+    const arrayBuffer = await file.arrayBuffer();
+    const fontFace = new FontFace('MyHandwriting', arrayBuffer);
+    await fontFace.load();
+    document.fonts.add(fontFace);
+
+    document.querySelector('.drawboard').style.display = 'none';
+    document.getElementById('doneBoard').style.display = 'flex';
+    document.getElementById('previewArea').style.fontFamily = "MyHandwriting, sans-serif";
+
+});

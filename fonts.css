@@ -32,6 +32,7 @@ header{
     background-color: #e2e1df9d;
     height: 45vh;
     width: 45vh;
+    touch-action: none;
 }
 .buttons{
     display: flex;
@@ -40,5 +41,9 @@ header{
 }
 #previewArea{
     height: 100%;
-    width: 100%;
+    width: 50%;
+    font-size: 4rem;
+    letter-spacing: -2.5px;
+    word-spacing: 10px;
+
 }
