@@ -6,6 +6,7 @@ let drawing = false;
 
 const canvas = document.getElementById('canvas');
 const ctx = canvas.getContext('2d');
+const warning = document.getElementById('emptywarning');
 
 function setupCanvasSize(){
     const rect = canvas.getBoundingClientRect();
@@ -43,6 +44,7 @@ canvas.addEventListener('pointerdown', e=>{
     drawing = true;
     currentStrokes.push([pos(e)]);
     canvas.setPointerCapture(e.pointerId);
+    warning.style.display = 'none';
 });
 
 canvas.addEventListener('pointermove', e=> {
@@ -59,9 +61,17 @@ document.getElementById('clear').onclick = ()=>{
 };
 
 document.getElementById('skip').onclick = ()=> nextLetter(true);
-document.getElementById('confirm').onclick = ()=> nextLetter(false);
+document.getElementById('confirm').onclick = ()=>{
+    if(currentStrokes.length ===0){
+        warning.style.display = 'block';
+        return;
+    }
+    warning.style.display = 'none';
+    nextLetter(false);
+};
 
 function nextLetter(skip){
+    warning.style.display = 'none';
     if(!skip && currentStrokes.length>0){
         glyphData[LETTERS[idx]] = currentStrokes;
     }
@@ -123,24 +133,24 @@ function finishFont(){
     }));
 
     LETTERS.forEach(ch=>{
-        const strokes = glyphData[ch];
-        const path = new opentype.Path();
-        if(strokes){
-            strokes.forEach(stroke=>{
-                const polys = strokeToOutline(stroke, canvas.width*0.06);
-                polys.forEach(poly=>{
-                    poly.forEach((pt,i)=>{
-                        const fp = toFontPoint(pt);
-                        i===0 ? path.moveTo(fp.x, fp.y) : path.lineTo(fp.x, fp.y);
-                    });
-                    path.close();
-                });
+    const strokes = glyphData[ch];
+    if(!strokes) return; // no glyph added — falls back to sans-serif for this char
+
+    const path = new opentype.Path();
+    strokes.forEach(stroke=>{
+        const polys = strokeToOutline(stroke, canvas.width*0.06);
+        polys.forEach(poly=>{
+            poly.forEach((pt,i)=>{
+                const fp = toFontPoint(pt);
+                i===0 ? path.moveTo(fp.x, fp.y) : path.lineTo(fp.x, fp.y);
             });
-        }
-        glyphs.push(new opentype.Glyph({
-            name: ch, unicode: ch.charCodeAt(0), advanceWidth: 620, path
-        }));
+            path.close();
+        });
     });
+    glyphs.push(new opentype.Glyph({
+        name: ch, unicode: ch.charCodeAt(0), advanceWidth: 620, path
+    }));
+});
 
     const font = new opentype.Font({
         familyName: "MyHandwriting",
@@ -156,7 +166,7 @@ function finishFont(){
     const fontFace = new FontFace('MyHandwriting', arrayBuffer);
     fontFace.load().then(loaded=>{
         document.fonts.add(loaded);
-        document.getElementById('previewArea').style.fontFamily = "MyHandwriting";
+        document.getElementById('previewArea').style.fontFamily = "MyHandwriting, sans-serif";
     });
 
     document.getElementById('download').onclick = ()=>{

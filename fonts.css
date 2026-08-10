@@ -38,3 +38,7 @@ header{
     gap: 3rem;
     margin-top: 1rem;
 }
+#previewArea{
+    height: 100%;
+    width: 100%;
+}
