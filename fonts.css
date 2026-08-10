@@ -40,9 +40,10 @@ header{
     margin-top: 1rem;
 }
 #previewArea{
+    margin: 5rem;
     height: 100%;
     width: 50%;
-    font-size: 4rem;
+    font-size: 5vh;
     letter-spacing: -2.5px;
     word-spacing: 10px;
 
