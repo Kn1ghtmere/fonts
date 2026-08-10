@@ -57,6 +57,7 @@ canvas.addEventListener('pointercancel', ()=> drawing=false);
 
 document.getElementById('clear').onclick = ()=>{
     currentStrokes = [];
+    delete glyphData[LETTERS[idx]];
     drawGuide();
 };
 
@@ -72,17 +73,29 @@ document.getElementById('confirm').onclick = ()=>{
 
 function nextLetter(skip){
     warning.style.display = 'none';
-    if(!skip && currentStrokes.length>0){
+    if(currentStrokes.length>0){
         glyphData[LETTERS[idx]] = currentStrokes;
     }
     idx++;
-    currentStrokes = [];
     if(idx >= LETTERS.length){
+        currentStrokes = [];
         finishFont();
     } else {
+        currentStrokes = glyphData[LETTERS[idx]] ? glyphData[LETTERS[idx]] : [];
         drawGuide();
     }
-}
+};
+
+document.getElementById('back').onclick = ()=>{
+    if(idx === 0) return;
+    warning.style.display = 'none';
+    if(currentStrokes.length > 0){
+        glyphData[LETTERS[idx]] = currentStrokes;
+    }
+    idx--;
+    currentStrokes = glyphData[LETTERS[idx]] ? glyphData[LETTERS[idx]] : [];
+    drawGuide();
+};
 
 window.addEventListener('load', ()=>{
     setupCanvasSize();
