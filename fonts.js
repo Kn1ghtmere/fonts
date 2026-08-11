@@ -21,7 +21,7 @@ function setupCanvasSize(){
 function drawGuide(){
     ctx.clearRect(0,0,canvas.width,canvas.height);
     ctx.fillStyle = "#bbb";
-    ctx.font = `${canvas.height*0.65}px serif`;
+    ctx.font = `${canvas.height*1.22}px serif`;
     ctx.textBaseline = "alphabetic";
     const ch = LETTERS[idx];
     const metrics = ctx.measureText(ch);
@@ -104,6 +104,18 @@ document.getElementById('back').onclick = ()=>{
     currentStrokes = glyphData[LETTERS[idx]] ? glyphData[LETTERS[idx]] : [];
     drawGuide();
     saveProgress();
+    updateLiveFont();
+};
+
+document.getElementById('clearall').onclick = ()=> {
+    localStorage.removeItem('fontProgress');
+
+    Object.keys(glyphData).forEach(key => delete glyphData[key]);
+    idx = 0;
+    currentStrokes = [];
+    drawing = false;
+
+    drawGuide();
     updateLiveFont();
 };
 
@@ -244,7 +256,16 @@ async function updateLiveFont(){
         glyphs.push(new opentype.Glyph({name:ch, unicode:ch.charCodeAt(0), advanceWidth, path}));
     });
 
-    if(!any) return;
+    if(!any) {
+        document.getElementById('livePreview').style.fontFamily = "sans-serif";
+        document.getElementById('livePreviewCap').style.fontFamily = "sans-serif";
+
+        if(liveFontFace){
+            document.fonts.delete(liveFontFace);
+            liveFontFace = null;
+        }
+        return;
+    }
 
     const font = new opentype.Font({
         familyName: "LivePreviewFont", styleName: "Regular",
