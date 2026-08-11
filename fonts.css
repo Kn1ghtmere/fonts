@@ -9,6 +9,7 @@ header{
     background-color: #dfb76e9d;
     padding: 20px;
     text-align: center;
+    font
 }
 .main{
     display: flex;
@@ -47,4 +48,9 @@ header{
     letter-spacing: -2.5px;
     word-spacing: 10px;
 
+}
+#download{
+    margin: 2vh;
+    width: 50%;
+    height: 5%;
 }

@@ -8,6 +8,10 @@ const canvas = document.getElementById('canvas');
 const ctx = canvas.getContext('2d');
 const warning = document.getElementById('emptywarning');
 
+function saveProgress(){
+    localStorage.setItem('fontProgress', JSON.stringify({glyphData, idx}));
+}
+
 function setupCanvasSize(){
     const rect = canvas.getBoundingClientRect();
     canvas.width = rect.width;
@@ -86,6 +90,8 @@ function nextLetter(skip){
         currentStrokes = glyphData[LETTERS[idx]] ? glyphData[LETTERS[idx]] : [];
         drawGuide();
     }
+    saveProgress();
+    updateLiveFont();
 };
 
 document.getElementById('back').onclick = ()=>{
@@ -97,10 +103,19 @@ document.getElementById('back').onclick = ()=>{
     idx--;
     currentStrokes = glyphData[LETTERS[idx]] ? glyphData[LETTERS[idx]] : [];
     drawGuide();
+    saveProgress();
+    updateLiveFont();
 };
 
 window.addEventListener('load', ()=>{
     setupCanvasSize();
+    const saved = localStorage.getItem('fontProgress');
+    if(saved){
+        const data = JSON.parse(saved);
+        Object.assign(glyphData, data.glyphData);
+        idx = data.idx;
+        currentStrokes = glyphData[LETTERS[idx]] ? glyphData[LETTERS[idx]] : [];
+    }
     drawGuide();
 });
 
@@ -193,9 +208,58 @@ function finishFont(){
         a.href = url;
         a.download = 'my-handwriting-font.ttf';
         a.click();
+        localStorage.removeItem('fontProgress');
     };
 }
+let liveFontFace = null;
 
+async function updateLiveFont(){
+    const unitsPerEm = 1000;
+    const scale = unitsPerEm / canvas.width * 0.9;
+    const baselineY = canvas.height * 0.85;
+    const toFontPoint = p => ({ x: p.x*scale, y: (baselineY-p.y)*scale });
+
+    const glyphs = [
+        new opentype.Glyph({name:'.notdef', advanceWidth:600, path:new opentype.Path()}),
+        new opentype.Glyph({name:'space', unicode:32, advanceWidth:300, path:new opentype.Path()})
+    ];
+
+    let any = false;
+    LETTERS.forEach(ch=>{
+        const strokes = glyphData[ch];
+        if(!strokes) return;
+        any = true;
+        const path = new opentype.Path();
+        strokes.forEach(stroke=>{
+            strokeToOutline(stroke, canvas.width*0.06).forEach(poly=>{
+                poly.forEach((pt,i)=>{
+                    const fp = toFontPoint(pt);
+                    i===0 ? path.moveTo(fp.x,fp.y) : path.lineTo(fp.x,fp.y);
+                });
+                path.close();
+            });
+        });
+        const bbox = path.getBoundingBox();
+        const advanceWidth = (bbox.x2-bbox.x1) + unitsPerEm*0.16;
+        glyphs.push(new opentype.Glyph({name:ch, unicode:ch.charCodeAt(0), advanceWidth, path}));
+    });
+
+    if(!any) return;
+
+    const font = new opentype.Font({
+        familyName: "LivePreviewFont", styleName: "Regular",
+        unitsPerEm, ascender: 800, descender: -200, glyphs
+    });
+    const newFontFace = new FontFace('LivePreviewFont', font.toArrayBuffer());
+    await newFontFace.load();
+
+    if(liveFontFace) document.fonts.delete(liveFontFace);
+    document.fonts.add(newFontFace);
+    liveFontFace = newFontFace;
+
+    document.getElementById('livePreview').style.fontFamily = "LivePreviewFont, sans-serif";
+    document.getElementById('livePreviewCap').style.fontFamily = "LivePreviewFont, sans-serif";
+}
 
 document.getElementById('frontUpload').addEventListener('change', async (e)=>{
     const file = e.target.files[0];
