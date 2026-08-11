@@ -56,7 +56,6 @@ header{
     height: 100%;
     width: 50%;
     font-size: 5vh;
-    letter-spacing: -2.5px;
     word-spacing: 10px;
 
 }
@@ -64,4 +63,33 @@ header{
     margin: 2vh;
     width: 50%;
     height: 5%;
+}
+
+footer{
+    margin-top: auto;
+    padding: 1.5vh;
+    text-align: center;
+    font-size: 1.6vh;
+    color: #493a07;
+    background-color: #dfb76e9d;
+}
+
+.devtools{
+    background-color: #e2e1df9d;
+    padding: 1.5vh;
+    text-align: center;
+    font-size: 1.8 vh;
+    margin-top: 2vh;
+    border-top: 1px solid #493a0788
+
+}
+.devtools label{
+    margin-right:0.5rem;
+}
+
+#livePreview, #livePreviewCap{
+    font-size: clamp(0.9rem, 2.2vw, 1.8rem);
+    letter-spacing: 0.5vh;
+    text-decoration: underline;
+    text-underline-offset: 0.65vh;
 }

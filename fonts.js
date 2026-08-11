@@ -41,7 +41,9 @@ function drawGuide(){
 
 function pos(e) {
     const r = canvas.getBoundingClientRect();
-    return { x: e.clientX - r.left, y: e.clientY - r.top };
+    const x = Math.min(Math.max(e.clientX - r.left, 0), canvas.width);
+    const y = Math.min(Math.max(e.clientY - r.top, 0), canvas.height);
+    return { x, y};
 }
 
 canvas.addEventListener('pointerdown', e=>{
@@ -129,6 +131,7 @@ window.addEventListener('load', ()=>{
         currentStrokes = glyphData[LETTERS[idx]] ? glyphData[LETTERS[idx]] : [];
     }
     drawGuide();
+    updateLiveFont();
 });
 
 function strokeToOutline(points, width){
