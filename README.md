@@ -47,7 +47,8 @@ anyways try it out and see what ur font looks like cuz im pretty sure that its b
 ## Screenshot? 
 uhh sure..
 ![alt text](image.png)
-![alt text](image-1.png)
+<img width="1906" height="931" alt="image" src="https://github.com/user-attachments/assets/ff419e37-9775-47a7-85e4-c2fd07e72b31" />
+
 
 
 
